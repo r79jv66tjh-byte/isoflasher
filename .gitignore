@@ -16,3 +16,7 @@ tools/
 *.exe
 *.dll
 *.lzma
+release/
+build/
+dist/
+*.spec

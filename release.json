@@ -1,0 +1,5 @@
+{
+  "name": "IsoFlasher",
+  "entry": "IsoFlasher.pyw",
+  "pyinstaller": []
+}
