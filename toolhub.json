@@ -1,0 +1,190 @@
+{
+  "name": "IsoFlasher",
+  "category": "Laufwerke & USB",
+  "description": "Bootfähige USB-Sticks erstellen: Linux-/Tool-ISOs 1:1 schreiben und per Prüfsumme kontrollieren, Windows-Installationssticks (GPT/MBR, install.wim teilen, Windows-11-Anpassungen), Multiboot mit Ventoy, Persistenz für Linux-Live-Sticks, Sticks/SD-Karten als Abbild sichern und zurückschreiben, offizielle ISOs laden. Ziel dürfen nur USB-Sticks und SD-Karten sein; System- und interne Platten sind immer gesperrt.",
+  "commands": [
+    {
+      "name": "drives",
+      "description": "Datenträger mit Modell, Größe, Bustyp, Laufwerken, Ventoy ja/nein und Sperrgründen. selectable=false heißt: darf kein Ziel sein. confirm_with zeigt, was als confirm_target nötig ist.",
+      "run": ["python", "cli.py", "drives"],
+      "args": [
+        {"name": "selectable", "flag": "--selectable", "type": "boolean", "required": false, "description": "Nur erlaubte Ziele (USB/SD)"}
+      ],
+      "readonly": true
+    },
+    {
+      "name": "iso-info",
+      "description": "Abbild untersuchen: Typ (Windows-Installation, hybride Linux-/Tool-ISO, nicht-hybride ISO, Datenträger-Abbild, gepackt), empfohlener Weg (windows, dd, ventoy), Distribution, Persistenz möglich, install.wim-Größe.",
+      "run": ["python", "cli.py", "iso-info"],
+      "args": [
+        {"name": "image", "flag": "--image", "type": "string", "required": true, "description": "Pfad zur .iso/.img/.img.xz/.zip"}
+      ],
+      "readonly": true
+    },
+    {
+      "name": "verify",
+      "description": "SHA-256 einer Datei berechnen und mit erwartetem Wert vergleichen (Hex-Wert, Inhalt einer SHA256SUMS-Datei oder Pfad dazu). match=true/false.",
+      "run": ["python", "cli.py", "verify"],
+      "args": [
+        {"name": "file", "flag": "--file", "type": "string", "required": true, "description": "Datei"},
+        {"name": "expected", "flag": "--expected", "type": "string", "required": false, "description": "Erwarteter SHA-256 bzw. SHA256SUMS"}
+      ],
+      "readonly": true,
+      "timeout": 3600
+    },
+    {
+      "name": "helpers",
+      "description": "Status der Open-Source-Helfer wimlib, Ventoy, Fido (Version, Lizenz, Quelle, SHA-256, installiert).",
+      "run": ["python", "cli.py", "helpers"],
+      "args": [],
+      "readonly": true
+    },
+    {
+      "name": "ventoy-list",
+      "description": "ISOs auf einem Ventoy-Stick auflisten (mit Persistenz-Datei, freiem Platz).",
+      "run": ["python", "cli.py", "ventoy-list"],
+      "args": [
+        {"name": "target", "flag": "--target", "type": "string", "required": true, "description": "Datenträgernummer oder Buchstabe"}
+      ],
+      "readonly": true
+    },
+    {
+      "name": "catalog",
+      "description": "Offizielle Download-Links mit SHA-256 von den Herstellerseiten (Ubuntu LTS, Linux Mint, Debian Live, Memtest86+, GParted).",
+      "run": ["python", "cli.py", "catalog"],
+      "args": [
+        {"name": "key", "flag": "--key", "type": "string", "required": false, "description": "Nur ein Eintrag", "enum": ["ubuntu", "mint", "debian", "memtest", "gparted", "windows"]}
+      ],
+      "readonly": true
+    },
+    {
+      "name": "flash",
+      "description": "Abbild 1:1 auf einen oder mehrere Sticks schreiben (ISO, .img, .img.xz, .img.gz, .zip), danach zurücklesen und SHA-256 vergleichen. Mehrere Ziele mit Komma (gleichzeitig). Optional Persistenz-Partition (persistence_mb, 0 = Rest). LÖSCHT ALLES auf dem Ziel. confirm_target muss exakt die Datenträgernummer(n) enthalten. Ohne confirm=true nur Vorschau. Braucht Adminrechte (UAC).",
+      "run": ["python", "cli.py", "flash"],
+      "args": [
+        {"name": "image", "flag": "--image", "type": "string", "required": true, "description": "Abbild"},
+        {"name": "target", "flag": "--target", "type": "string", "required": true, "description": "Datenträgernummer(n), z. B. 3 oder 3,4"},
+        {"name": "persistence_mb", "flag": "--persistence-mb", "type": "string", "required": false, "description": "Persistenz-Partition in MB (0 = Rest des Sticks)"},
+        {"name": "live_system", "flag": "--live-system", "type": "string", "required": false, "description": "Falls nicht erkannt", "enum": ["casper", "live-boot"]},
+        {"name": "no_verify", "flag": "--no-verify", "type": "boolean", "required": false, "description": "Nicht zurücklesen"},
+        {"name": "confirm_target", "flag": "--confirm-target", "type": "string", "required": true, "description": "Zur Bestätigung dieselbe(n) Nummer(n) wie target"}
+      ],
+      "readonly": false,
+      "timeout": 86400
+    },
+    {
+      "name": "windows",
+      "description": "Windows-Installationsstick: Partitionstabelle (GPT=UEFI, MBR=BIOS+UEFI), FAT32, Dateien kopieren, install.wim > 4 GB mit wimlib teilen, optional autounattend.xml (TPM/Secure-Boot/RAM-Prüfung aus, Online-Konto-Zwang aus, lokales Konto, Datenschutz-Fragen aus, BitLocker aus), danach jede Datei prüfen. LÖSCHT ALLES. Ohne confirm=true nur Vorschau (inkl. autounattend-Vorschau).",
+      "run": ["python", "cli.py", "windows"],
+      "args": [
+        {"name": "image", "flag": "--image", "type": "string", "required": true, "description": "Windows-ISO"},
+        {"name": "target", "flag": "--target", "type": "string", "required": true, "description": "Datenträgernummer"},
+        {"name": "style", "flag": "--style", "type": "string", "required": false, "description": "Standard GPT", "enum": ["GPT", "MBR"]},
+        {"name": "label", "flag": "--label", "type": "string", "required": false, "description": "Volumenname"},
+        {"name": "bypass_hw", "flag": "--bypass-hw", "type": "boolean", "required": false, "description": "TPM/Secure Boot/RAM-Prüfung aus"},
+        {"name": "bypass_online", "flag": "--bypass-online", "type": "boolean", "required": false, "description": "Online-Konto-Zwang aus"},
+        {"name": "local_user", "flag": "--local-user", "type": "string", "required": false, "description": "Lokales Konto anlegen"},
+        {"name": "no_privacy", "flag": "--no-privacy", "type": "boolean", "required": false, "description": "Datenschutz-Fragen aus"},
+        {"name": "no_bitlocker", "flag": "--no-bitlocker", "type": "boolean", "required": false, "description": "BitLocker-Autoverschlüsselung aus"},
+        {"name": "allow_download", "flag": "--allow-download", "type": "boolean", "required": false, "description": "wimlib bei Bedarf von wimlib.net laden (vorher Nutzer fragen)"},
+        {"name": "confirm_target", "flag": "--confirm-target", "type": "string", "required": true, "description": "Zur Bestätigung dieselbe Nummer"}
+      ],
+      "readonly": false,
+      "timeout": 86400
+    },
+    {
+      "name": "ventoy-install",
+      "description": "Ventoy (GPLv3) auf einen Stick installieren – LÖSCHT ALLES. Danach können beliebig viele ISOs draufkopiert werden. Ohne confirm=true nur Vorschau.",
+      "run": ["python", "cli.py", "ventoy-install"],
+      "args": [
+        {"name": "target", "flag": "--target", "type": "string", "required": true, "description": "Datenträgernummer"},
+        {"name": "mbr", "flag": "--mbr", "type": "boolean", "required": false, "description": "MBR statt GPT"},
+        {"name": "no_secure_boot", "flag": "--no-secure-boot", "type": "boolean", "required": false, "description": "Secure-Boot-Unterstützung aus"},
+        {"name": "fs", "flag": "--fs", "type": "string", "required": false, "description": "Dateisystem", "enum": ["exFAT", "NTFS", "FAT32"]},
+        {"name": "allow_download", "flag": "--allow-download", "type": "boolean", "required": false, "description": "Ventoy bei Bedarf von GitHub laden (vorher Nutzer fragen)"},
+        {"name": "confirm_target", "flag": "--confirm-target", "type": "string", "required": true, "description": "Zur Bestätigung dieselbe Nummer"}
+      ],
+      "readonly": false,
+      "timeout": 3600
+    },
+    {
+      "name": "ventoy-add",
+      "description": "ISO auf einen Ventoy-Stick kopieren und per SHA-256 prüfen, optional Persistenz-Datei anlegen. Löscht nichts.",
+      "run": ["python", "cli.py", "ventoy-add"],
+      "args": [
+        {"name": "target", "flag": "--target", "type": "string", "required": true, "description": "Datenträgernummer"},
+        {"name": "image", "flag": "--image", "type": "string", "required": true, "description": "ISO-Datei"},
+        {"name": "subdir", "flag": "--subdir", "type": "string", "required": false, "description": "Unterordner auf dem Stick"},
+        {"name": "persistence_mb", "flag": "--persistence-mb", "type": "string", "required": false, "description": "Persistenz-Datei in MB"},
+        {"name": "confirm_target", "flag": "--confirm-target", "type": "string", "required": true, "description": "Zur Bestätigung dieselbe Nummer"}
+      ],
+      "readonly": false,
+      "timeout": 7200
+    },
+    {
+      "name": "ventoy-remove",
+      "description": "ISO vom Ventoy-Stick löschen (inkl. Persistenz-Eintrag).",
+      "run": ["python", "cli.py", "ventoy-remove"],
+      "args": [
+        {"name": "target", "flag": "--target", "type": "string", "required": true, "description": "Datenträgernummer"},
+        {"name": "path", "flag": "--path", "type": "string", "required": true, "description": "Pfad auf dem Stick, z. B. /ubuntu.iso"},
+        {"name": "confirm_target", "flag": "--confirm-target", "type": "string", "required": true, "description": "Zur Bestätigung dieselbe Nummer"}
+      ],
+      "readonly": false
+    },
+    {
+      "name": "ventoy-persistence",
+      "description": "Persistenz-Datei (ext4) für eine ISO auf dem Ventoy-Stick anlegen und in ventoy.json eintragen (Ubuntu/Mint: casper-rw, Debian: persistence).",
+      "run": ["python", "cli.py", "ventoy-persistence"],
+      "args": [
+        {"name": "target", "flag": "--target", "type": "string", "required": true, "description": "Datenträgernummer"},
+        {"name": "iso", "flag": "--iso", "type": "string", "required": true, "description": "Pfad auf dem Stick, z. B. /ubuntu.iso"},
+        {"name": "size_mb", "flag": "--size-mb", "type": "string", "required": false, "description": "Größe in MB (Standard 4096)"},
+        {"name": "confirm_target", "flag": "--confirm-target", "type": "string", "required": true, "description": "Zur Bestätigung dieselbe Nummer"}
+      ],
+      "readonly": false,
+      "timeout": 3600
+    },
+    {
+      "name": "persistence",
+      "description": "Persistenz-Partition (ext4) im freien Bereich hinter einem 1:1 geschriebenen Linux-Live-Abbild anlegen. Ohne confirm=true nur Vorschau.",
+      "run": ["python", "cli.py", "persistence"],
+      "args": [
+        {"name": "target", "flag": "--target", "type": "string", "required": true, "description": "Datenträgernummer"},
+        {"name": "live_system", "flag": "--live-system", "type": "string", "required": true, "description": "casper (Ubuntu/Mint) oder live-boot (Debian)", "enum": ["casper", "live-boot"]},
+        {"name": "size_mb", "flag": "--size-mb", "type": "string", "required": false, "description": "MB, 0 = Rest"},
+        {"name": "confirm_target", "flag": "--confirm-target", "type": "string", "required": true, "description": "Zur Bestätigung dieselbe Nummer"}
+      ],
+      "readonly": false,
+      "timeout": 3600
+    },
+    {
+      "name": "backup",
+      "description": "Stick/SD-Karte als Abbild sichern (.img, .img.xz, .img.gz, .zip) inkl. .sha256-Datei und Prüfung. Liest den Datenträger nur. Zurückschreiben mit flash.",
+      "run": ["python", "cli.py", "backup"],
+      "args": [
+        {"name": "target", "flag": "--target", "type": "string", "required": true, "description": "Datenträgernummer"},
+        {"name": "out", "flag": "--out", "type": "string", "required": true, "description": "Zieldatei (Endung bestimmt Format)"},
+        {"name": "used_only", "flag": "--used-only", "type": "boolean", "required": false, "description": "Nur bis Ende der letzten Partition (MBR)"},
+        {"name": "confirm_target", "flag": "--confirm-target", "type": "string", "required": true, "description": "Zur Bestätigung dieselbe Nummer"}
+      ],
+      "readonly": false,
+      "timeout": 86400
+    },
+    {
+      "name": "download",
+      "description": "Offizielle ISO herunterladen und SHA-256 mit dem offiziellen bzw. eingegebenen Wert vergleichen. Windows über Fido (Microsoft-Link; Prüfsumme bitte von microsoft.com eingeben). Ohne confirm=true nur Link/Prüfsumme anzeigen.",
+      "run": ["python", "cli.py", "download"],
+      "args": [
+        {"name": "key", "flag": "--key", "type": "string", "required": true, "description": "Was laden", "enum": ["ubuntu", "mint", "debian", "memtest", "gparted", "windows"]},
+        {"name": "folder", "flag": "--folder", "type": "string", "required": false, "description": "Zielordner (Standard Downloads)"},
+        {"name": "expected", "flag": "--expected", "type": "string", "required": false, "description": "Eigener SHA-256"},
+        {"name": "win_version", "flag": "--win-version", "type": "string", "required": false, "description": "Windows 11 oder 10", "enum": ["11", "10"]},
+        {"name": "lang", "flag": "--lang", "type": "string", "required": false, "description": "Sprache, z. B. German"},
+        {"name": "allow_download", "flag": "--allow-download", "type": "boolean", "required": false, "description": "Fido beim ersten Mal von GitHub laden (vorher Nutzer fragen)"}
+      ],
+      "readonly": false,
+      "timeout": 14400
+    }
+  ]
+}
