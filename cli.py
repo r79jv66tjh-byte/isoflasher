@@ -447,7 +447,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     for stream in (sys.stdout, sys.stderr):
-        # Ohne Konsole (pythonw, .exe) ist der Stream None, in Tests oft ein StringIO ohne reconfigure.
+        # Without a console (pythonw, .exe) the stream is None; in tests it is often a StringIO without reconfigure.
         reconfigure = getattr(stream, "reconfigure", None)
         if reconfigure is not None:
             reconfigure(encoding="utf-8")

@@ -61,7 +61,7 @@ class Source:
             return 0
 
     def close(self):
-        # ExitStack schließt alle drei, auch wenn eins scheitert, und meldet den Fehler danach.
+        # ExitStack closes all three even if one fails, then re-raises that failure.
         with contextlib.ExitStack() as stack:
             for x in (self.raw, self._zip, self.stream):
                 if x is not None:

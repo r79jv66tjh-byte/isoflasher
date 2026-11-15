@@ -311,7 +311,7 @@ def backup(number: int, out_path: str, job: Job, used_only: bool = False, verify
         w.close()
         os.replace(tmp, out_path)
     except BaseException as e:
-        # Der ursprüngliche Fehler bleibt der gemeldete; ein Fehler beim Schließen steht als Hinweis daran.
+        # Keep the original error as the one reported; a failure while closing is attached as a note.
         try:
             w.close()
         except (OSError, ValueError, lzma.LZMAError, zlib.error) as close_error:
