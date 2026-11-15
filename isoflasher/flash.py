@@ -13,6 +13,7 @@ import hashlib
 import lzma
 import os
 import zipfile
+import zlib
 
 from . import disks, guard, ps, rawio
 from .jobs import Cancelled, Job, Meter, OpError, message
@@ -309,11 +310,12 @@ def backup(number: int, out_path: str, job: Job, used_only: bool = False, verify
                 meter.update(pos)
         w.close()
         os.replace(tmp, out_path)
-    except BaseException:
+    except BaseException as e:
+        # Keep the original error as the one reported; a failure while closing is attached as a note.
         try:
             w.close()
-        except Exception:
-            pass
+        except (OSError, ValueError, lzma.LZMAError, zlib.error) as close_error:
+            e.add_note(f"Zieldatei ließ sich nicht schließen: {close_error}")
         try:
             os.remove(tmp)
         except OSError:
