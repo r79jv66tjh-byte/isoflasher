@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import bz2
+import contextlib
 import gzip
 import lzma
 import os
@@ -60,12 +61,11 @@ class Source:
             return 0
 
     def close(self):
-        for x in (self.stream, self._zip, self.raw):
-            try:
+        # ExitStack schließt alle drei, auch wenn eins scheitert, und meldet den Fehler danach.
+        with contextlib.ExitStack() as stack:
+            for x in (self.raw, self._zip, self.stream):
                 if x is not None:
-                    x.close()
-            except Exception:
-                pass
+                    stack.callback(x.close)
 
     def __enter__(self):
         return self

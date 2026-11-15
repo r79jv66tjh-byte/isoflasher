@@ -538,10 +538,9 @@ def main():
     ap.add_argument("--ext4-python", help="Python mit Paket 'ext4' für die unabhängige ext4-Prüfung")
     a = ap.parse_args()
     for stream in (sys.stdout, sys.stderr):
-        try:
-            stream.reconfigure(encoding="utf-8", errors="replace")
-        except Exception:
-            pass
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
     global EXT4_CHECK
     EXT4_CHECK = a.ext4_python or EXT4_CHECK
     WORK.mkdir(parents=True, exist_ok=True)

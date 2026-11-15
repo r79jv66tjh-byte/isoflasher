@@ -26,10 +26,7 @@ class Job:
     def cancel(self):
         self._cancel.set()
         for c in list(self.children):
-            try:
-                c.kill()
-            except Exception:
-                pass
+            c.kill()
 
     @property
     def cancelled(self) -> bool:

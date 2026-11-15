@@ -447,10 +447,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     for stream in (sys.stdout, sys.stderr):
-        try:
-            stream.reconfigure(encoding="utf-8")
-        except Exception:
-            pass
+        # Ohne Konsole (pythonw, .exe) ist der Stream None, in Tests oft ein StringIO ohne reconfigure.
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8")
     a = build_parser().parse_args(argv)
     try:
         res = a.fn(a)
