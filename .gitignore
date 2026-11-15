@@ -20,3 +20,5 @@ release/
 build/
 dist/
 *.spec
+# Claude Code hooks and agents are installed per user, never in this public repository
+.claude/
