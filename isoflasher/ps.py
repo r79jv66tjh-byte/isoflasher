@@ -5,7 +5,7 @@ import base64
 import json
 import os
 import subprocess
-from typing import Callable, Iterator
+from typing import Iterator
 
 CREATE_NO_WINDOW = 0x08000000
 _PRELUDE = ("$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';"
@@ -108,10 +108,6 @@ class Streamed:
             self.proc.kill()
 
 
-def streamed_ps(script: str) -> Streamed:
-    return Streamed(_cmd(script), encoding="utf-8")
-
-
 def oem_encoding() -> str:
     import ctypes
     try:
@@ -142,6 +138,3 @@ def windows_drive() -> str:
     if not ctypes.windll.kernel32.GetWindowsDirectoryW(buf, 260) or not buf.value:
         raise RuntimeError("Windows-Ordner nicht ermittelbar: Laufwerk unbekannt, Sperre nicht möglich")
     return buf.value[0].upper()
-
-
-ProgressFn = Callable[[float | None, str], None]

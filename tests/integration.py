@@ -83,10 +83,6 @@ def read_disk(n: int, pos: int, length: int) -> bytes:
             buf.free()
 
 
-def disk_hash(n: int, length: int) -> str:
-    return flash.read_hash(n, length, Job())
-
-
 def disk_matches(n: int, img: Path) -> tuple[bool, bool]:
     """(gleich ohne MBR-Signatur, Signatur unverändert) – Windows darf Bytes 440–445 nachträglich setzen."""
     data = img.read_bytes()
@@ -391,7 +387,7 @@ def t_ventoy(c: Ctx):
         and sb[120:129] == b"casper-rw" and cfg["persistence"][0]["backend"] == "/persistence/hybrid_mbr.dat",
         ext=ext, cfg=cfg)
     code, out = cli("ventoy-remove", "--target", c.a.number, "--confirm-target", c.a.number, "--path", "/Tools/plain.iso")
-    code2, lst = cli("ventoy-list", "--target", c.a.number)
+    _, lst = cli("ventoy-list", "--target", c.a.number)
     log("ventoy_remove", code == 0 and all(i["path"] != "/Tools/plain.iso" for i in lst["isos"]), code=code)
     code, out = cli("ventoy-remove", "--target", c.a.number, "--confirm-target", c.b.number, "--path", "/hybrid_mbr.iso")
     log("ventoy_remove_wrong_confirm_blocked", code == 2 and Path(f"{L}:\\hybrid_mbr.iso").exists(), code=code)

@@ -25,7 +25,7 @@ from isoflasher.jobs import Job  # noqa: E402
 IMG = ROOT / "tests" / "_work" / "images"
 
 
-def raw_snapshot(test_paths=()):
+def raw_snapshot():
     disk = lambda n, bus, size=16 << 30, **kw: {"Number": n, "Model": f"M{n}", "Serial": f"S{n}", "BusType": bus,
                                                  "Size": size, "PartitionStyle": "MBR", "Location": kw.get("loc", ""),
                                                  "UniqueId": f"U{n}", "IsSystem": kw.get("sys", False),

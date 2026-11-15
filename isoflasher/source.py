@@ -34,7 +34,6 @@ class Source:
         elif self.kind == "zip":
             self._zip = zipfile.ZipFile(self.raw)
             m = zip_member(path)
-            self.member = m.filename
             self.total = m.file_size
             self.stream = self._zip.open(m)
         else:
