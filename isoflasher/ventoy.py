@@ -61,7 +61,7 @@ def install(number: int, confirm: str, job: Job, gpt: bool = True, secure_boot: 
     p = subprocess.Popen(args, cwd=str(wd), creationflags=ps.CREATE_NO_WINDOW)
 
     class _K:
-        def kill(self_):
+        def kill(_self):
             p.kill()
     k = _K()
     job.children.append(k)

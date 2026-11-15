@@ -58,7 +58,6 @@ class Volume:
     free: int
     drive_type: str
     path: str
-    disk_number: int | None = None
     partition_number: int | None = None
 
     def to_json(self) -> dict:
@@ -211,7 +210,7 @@ def build_snapshot(raw: dict, system_letters: set[str], own: set[str] | None = N
                    path=str(r.get("Path") or ""))
         hit = by_path.get(v.path.lower().rstrip("\\")) or (by_letter.get(v.letter) if v.letter else None)
         if hit and hit[0] in disks:
-            v.disk_number, v.partition_number = hit
+            v.partition_number = hit[1]
             disks[hit[0]].volumes.append(v)
 
     page_letters = {_letter(p) for p in ps.as_list(raw.get("pagefiles")) if _letter(p)}

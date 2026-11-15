@@ -88,9 +88,6 @@ class Meter:
         p = f"{pct:5.1f} %" if pct is not None else ""
         return f"{self.step} {p}  {fmt_speed(speed)}  Rest {fmt_duration(eta)}".strip()
 
-    def finish(self):
-        self.update(self.done, force=True)
-
 
 def message(job: Job, text: str, target: str = "", percent: float | None = None):
     job.progress({"phase": "info", "target": target, "text": text, "percent": percent})

@@ -1,0 +1,15 @@
+# Names that only code outside this project uses, so vulture cannot see the use.
+# Kept by bin/dead-code-triage from AI-Coding-Tools; lines with another reason are kept as written.
+SystemDrive  # unittest test class (tests/test_system_drive.py:22)
+WindowsDrive  # unittest test class (tests/test_system_drive.py:33)
+_.cbSize  # ctypes structure field (isoflasher/elevate.py:29)
+_.fMask  # ctypes structure field (isoflasher/elevate.py:30)
+_.lpDirectory  # ctypes structure field (isoflasher/elevate.py:34)
+_.lpFile  # ctypes structure field (isoflasher/elevate.py:32)
+_.lpParameters  # ctypes structure field (isoflasher/elevate.py:33)
+_.lpVerb  # ctypes structure field (isoflasher/elevate.py:31)
+_.nShow  # ctypes structure field (isoflasher/elevate.py:35)
+exc  # __exit__ parameter (isoflasher/rawio.py:136)
+exc  # __exit__ parameter (isoflasher/source.py:73)
+exc  # __exit__ parameter (isoflasher/windows.py:114)
+_.compress_type  # read by zipfile.ZipFile.open for the ZipInfo it gets (isoflasher/flash.py)

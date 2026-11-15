@@ -69,15 +69,6 @@ def lock_disk_volumes(d: disks.Disk) -> list:
     return handles
 
 
-def wipe_layout(d: disks.Disk):
-    """Partitionen entfernen, damit Windows die alten Volumes nicht wieder einhängt."""
-    try:
-        ps.run(f"$d=Get-Disk -Number {d.number}; if ($d.PartitionStyle -ne 'RAW') "
-               f"{{ Clear-Disk -Number {d.number} -RemoveData -RemoveOEM -Confirm:$false }}", timeout=120)
-    except ps.PSError:
-        pass   # z. B. RAW oder unbekannter Stil – die Rohdaten werden ohnehin überschrieben
-
-
 def rescan(number: int):
     try:
         with rawio.Device(f"\\\\.\\PhysicalDrive{int(number)}", write=False) as dev:

@@ -52,7 +52,6 @@ class AlignedBuffer:
         self.ptr = k32.VirtualAlloc(None, size, MEM_COMMIT_RESERVE, PAGE_READWRITE)
         if not self.ptr:
             raise _err("Speicher anfordern")
-        self.view = (ctypes.c_char * size).from_address(self.ptr)
 
     def load(self, data: bytes, pad_to: int) -> int:
         """data hineinkopieren und mit Nullen bis pad_to auffüllen; gibt pad_to zurück."""
